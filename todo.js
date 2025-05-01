@@ -43,11 +43,9 @@ app.delete('/:id', (req, res) => {
         res.send(result);
     });
 });
-// تحديث حالة المهمة
 app.patch('/:id/status', (req, res) => {
     const id = req.params.id;
     
-    // استعلام أكثر قوة لتغيير الحالة
     sql.query(`
         UPDATE todos 
         SET status = CASE WHEN status = 1 THEN 0 ELSE 1 END 
@@ -58,7 +56,6 @@ app.patch('/:id/status', (req, res) => {
             return res.status(500).json({ error: 'Failed to update task status' });
         }
         
-        // إرجاع المهمة المحدثة
         sql.query('SELECT * FROM todos WHERE id = ?', [id], (err, task) => {
             if (err) return res.status(500).json({ error: 'Failed to fetch updated task' });
             res.json(task[0]);
