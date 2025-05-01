@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>✨ Productivity App</title>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #f43f5e;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+    }
+  
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+  
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafb;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 2rem;
+      color: var(--gray-900);
+    }
+  
+    .container {
+      background: #fff;
+      padding: 2rem;
+      width: 100%;
+      max-width: 800px;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+  
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+  
+    .header h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--gray-900);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+  
+    .header i {
+      color: var(--primary);
+    }
+  
+    .stats {
+      display: flex;
+      gap: 1rem;
+    }
+  
+    .stat-card {
+      background: var(--gray-100);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  
+    .stat-card i {
+      font-size: 1rem;
+    }
+  
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+  
+    input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--gray-300);
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+  
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+  
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+  
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+  
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+  
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+  
+    .btn-success {
+      background-color: var(--success);
+      color: white;
+    }
+  
+    .btn-success:hover {
+      background-color: #0d9e6e;
+    }
+  
+    .btn-warning {
+      background-color: var(--warning);
+      color: white;
+    }
+  
+    .btn-warning:hover {
+      background-color: #e0900a;
+    }
+  
+    .btn-danger {
+      background-color: var(--secondary);
+      color: white;
+    }
+  
+    .btn-danger:hover {
+      background-color: #e11d48;
+    }
+  
+    .table-container {
+      overflow-x: auto;
+      border-radius: 0.5rem;
+      border: 1px solid var(--gray-200);
+    }
+  
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+  
+    thead {
+      background-color: var(--gray-100);
+    }
+  
+    th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--gray-700);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  
+    td {
+      padding: 1rem;
+      border-top: 1px solid var(--gray-200);
+    }
+  
+    tr:not(:last-child) td {
+      border-bottom: 1px solid var(--gray-200);
+    }
+  
+    tr:hover td {
+      background-color: var(--gray-50);
+    }
+  
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+  
+    .status-incomplete {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+  
+    .status-complete {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+  
+    .task-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+  
+    .completed {
+      text-decoration: line-through;
+      color: var(--gray-500);
+    }
+  
+    .empty-state {
+      text-align: center;
+      padding: 3rem 0;
+      color: var(--gray-500);
+    }
+  
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: var(--gray-300);
+    }
+  
+    .empty-state p {
+      margin-top: 0.5rem;
+    }
+  
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+      
+      .container {
+        padding: 1.5rem;
+      }
+      
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .stats {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .input-group {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-tasks"></i> Task Manager</h1>
+      <div class="stats">
+        <div class="stat-card">
+          <i class="fas fa-list-check"></i>
+          <span id="totalTasks">0 tasks</span>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-check-circle"></i>
+          <span id="completedTasks">0 completed</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <input type="text" id="taskInput" placeholder="Enter a new task...">
+      <button class="btn btn-primary" onclick="addTask()">
+        <i class="fas fa-plus"></i> Add Task
+      </button>
+      <button class="btn btn-sm btn-warning" onclick="loadTasks()">
+        <i class="fas fa-rotate"></i> Refresh
+      </button>
+    </div>
+
+    <div class="table-container">
+      <table id="taskTable">
+        <thead>
+          <tr>
+            <th>Task</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="taskList">
+          <tr>
+            <td colspan="3" class="empty-state">
+              <i class="fas fa-clipboard-list"></i>
+              <h3>No tasks yet</h3>
+              <p>Add your first task to get started</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const taskInput = document.getElementById('taskInput');
+    const taskList = document.getElementById('taskList');
+    const totalTasksElement = document.getElementById('totalTasks');
+    const completedTasksElement = document.getElementById('completedTasks');
+
+    function loadTasks() {
+      axios.get('http://localhost:3002/')
+        .then(response => {
+          const tasks = response.data;
+          updateStats(tasks);
+
+          if (tasks.length === 0) {
+            taskList.innerHTML = `
+              <tr>
+                <td colspan="3" class="empty-state">
+                  <i class="fas fa-clipboard-list"></i>
+                  <h3>No tasks yet</h3>
+                  <p>Add your first task to get started</p>
+                </td>
+              </tr>
+            `;
+            return;
+          }
+
+          taskList.innerHTML = '';
+          tasks.forEach(task => {
+            const taskRow = document.createElement('tr');
+            taskRow.innerHTML = `
+              <td class="${task.status ? 'completed' : ''}">
+                ${task.title}
+              </td>
+              <td>
+                <span class="status ${task.status ? 'status-complete' : 'status-incomplete'}">
+                  <i class="fas ${task.status ? 'fa-check-circle' : 'fa-spinner'}"></i>
+                  ${task.status ? 'Completed' : 'In Progress'}
+                </span>
+              </td>
+              <td>
+                <div class="task-actions">
+                  <button class="btn btn-sm ${task.status ? 'btn-warning' : 'btn-success'}" onclick="completeTask(${task.id}, this)">
+                    <i class="fas ${task.status ? 'fa-undo' : 'fa-check'}"></i>
+                    ${task.status ? 'Reopen' : 'Complete'}
+                  </button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteTask(${task.id})">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </div>
+              </td>
+            `;
+            taskList.appendChild(taskRow);
+          });
+        })
+        .catch(error => console.error('Error loading tasks:', error));
+    }
+
+    function updateStats(tasks) {
+      const total = tasks.length;
+      const completed = tasks.filter(task => task.status).length;
+
+      totalTasksElement.textContent = `${total} ${total === 1 ? 'task' : 'tasks'}`;
+      completedTasksElement.textContent = `${completed} completed`;
+    }
+
+    function addTask() {
+      const taskText = taskInput.value;
+      if (!taskText.trim()) return alert("Please enter a task!");
+
+      axios.post('http://localhost:3002/add', { title: taskText })
+        .then(() => {
+          taskInput.value = '';
+          taskInput.focus();
+          loadTasks();
+        })
+        .catch(error => console.error('Error adding task:', error));
+    }
+
+    function deleteTask(id) {
+      if (!confirm('Are you sure you want to delete this task?')) return;
+
+      axios.delete(`http://localhost:3002/${id}`)
+        .then(() => loadTasks())
+        .catch(error => console.error('Error deleting task:', error));
+    }
+
+    function completeTask(id, button) {
+      axios.patch(`http://localhost:3002/${id}/status`)
+        .then(response => {
+          const taskRow = button.closest('tr');
+          const statusCell = taskRow.querySelector('.status');
+          const isCompleted = statusCell.textContent.includes('Completed');
+
+          statusCell.innerHTML = `
+            <i class="fas ${isCompleted ? 'fa-spinner' : 'fa-check-circle'}"></i>
+            ${isCompleted ? 'In Progress' : 'Completed'}
+          `;
+          statusCell.className = isCompleted ? 'status status-incomplete' : 'status status-complete';
+
+          button.innerHTML = `
+            <i class="fas ${isCompleted ? 'fa-check' : 'fa-undo'}"></i>
+            ${isCompleted ? 'Complete' : 'Reopen'}
+          `;
+          button.className = `btn btn-sm ${isCompleted ? 'btn-success' : 'btn-warning'}`;
+
+          const taskText = taskRow.querySelector('td:first-child');
+          taskText.classList.toggle('completed');
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Failed to update task status');
+        });
+    }
+
+    // ⏎ دعم إضافة مهمة عند الضغط على Enter
+    taskInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') addTask();
+    });
+
+    window.onload = loadTasks;
+  </script>
+
+<div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; text-align: center; font-size: 0.9rem; color: #374151;">
+  <p><strong>🔗 Links:</strong></p>
+  <p>📹 <a href="https://lnkd.in/eD35QQ3Z" target="_blank">Demo Video</a> | 💻 <a href="https://lnkd.in/ecBUbzbY" target="_blank">Code Repository</a> | 🌐 <a href="https://lnkd.in/ee5vCuhQ" target="_blank">API Endpoint</a></p>
+  <p>Made with ❤️ by [Your Name]</p>
+</div>
+
+</body>
+</html>
+
+
+
+
